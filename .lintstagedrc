@@ -1,0 +1,4 @@
+{
+  "*": "bunx --bun prettier --write --ignore-unknown",
+  "*.prisma": "bunx --bun prisma format"
+}

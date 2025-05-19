@@ -1,0 +1,33 @@
+{
+  "name": "auth",
+  "version": "0.0.1",
+  "description": "",
+  "author": "",
+  "private": true,
+  "license": "UNLICENSED",
+  "scripts": {
+    "build": "bun run ./bin/build.ts",
+    "dev": "bun run --watch ./src/app/main.ts",
+    "start": "bun run  ./src/app/main.ts",
+    "start:prod": "bun dist/main.js",
+    "prepare": "husky && prisma generate --no-hints --allow-no-models"
+  },
+  "dependencies": {
+    "@nestjs/common": "11.1.1",
+    "@nestjs/core": "11.1.1",
+    "@nestjs/platform-express": "11.1.1",
+    "@prisma/client": "6.8.1",
+    "reflect-metadata": "0.2.2",
+    "rxjs": "7.8.2"
+  },
+  "devDependencies": {
+    "@types/bun": "1.2.13",
+    "@types/express": "5.0.1",
+    "@types/node": "22.15.18",
+    "husky": "9.1.7",
+    "lint-staged": "16.0.0",
+    "prettier": "3.5.3",
+    "prisma": "6.8.1",
+    "typescript": "5.8.3"
+  }
+}
