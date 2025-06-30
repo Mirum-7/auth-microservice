@@ -10,11 +10,19 @@ const config: BuildConfig = {
   entrypoints: [paths.entrypoint],
   target: 'bun',
   outdir: paths.output,
+  loader: {
+    '.proto': 'file',
+  },
   external: [
     'class-validator',
     'class-transformer',
-    '@nestjs/microservices',
     '@nestjs/websockets/socket-module',
+    'nats',
+    'mqtt',
+    'kafkajs',
+    'amqplib',
+    'amqp-connection-manager',
+    'ioredis',
   ],
   minify: true,
 };

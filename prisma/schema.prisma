@@ -1,8 +1,71 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["relationJoins"]
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+// main
+
+model User {
+  id        String   @id @default(uuid()) @db.VarChar(36)
+  username  String   @unique @db.VarChar(40)
+  email     String   @unique @db.VarChar(255)
+  password  String   @db.VarChar(255)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  UserRoles UserRole[]
+
+  @@map("users")
+}
+
+// permissions
+
+model Role {
+  id    String @id @default(uuid()) @db.VarChar(36)
+  name  String @db.VarChar(50)
+  color String @default("#000000FF") @db.VarChar(9)
+
+  UserRoles      UserRole[]
+  RolePermission RolePermission[]
+
+  @@map("roles")
+}
+
+model Permission {
+  id          String  @id @default(uuid()) @db.VarChar(36)
+  name        String  @db.VarChar(50)
+  description String? @db.VarChar(255)
+
+  RolePermissions RolePermission[]
+
+  @@map("permissions")
+}
+
+model UserRole {
+  userId    String   @map("user_id") @db.VarChar(36)
+  roleId    String   @map("role_id") @db.VarChar(36)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+  @@map("user_roles")
+}
+
+model RolePermission {
+  roleId       String   @map("role_id") @db.VarChar(36)
+  permissionId String   @map("permission_id") @db.VarChar(36)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+  @@map("role_permissions")
 }

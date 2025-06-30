@@ -13,10 +13,18 @@
     "prepare": "husky && prisma generate --no-hints --allow-no-models"
   },
   "dependencies": {
+    "@grpc/grpc-js": "1.13.3",
+    "@grpc/proto-loader": "0.7.15",
     "@nestjs/common": "11.1.1",
     "@nestjs/core": "11.1.1",
+    "@nestjs/jwt": "11.0.0",
+    "@nestjs/mapped-types": "2.1.0",
+    "@nestjs/microservices": "11.1.1",
     "@nestjs/platform-express": "11.1.1",
     "@prisma/client": "6.8.1",
+    "class-transformer": "0.5.1",
+    "class-validator": "0.14.2",
+    "cookie-parser": "1.4.7",
     "reflect-metadata": "0.2.2",
     "rxjs": "7.8.2"
   },
@@ -29,5 +37,8 @@
     "prettier": "3.5.3",
     "prisma": "6.8.1",
     "typescript": "5.8.3"
+  },
+  "patchedDependencies": {
+    "@protobufjs/inquire@1.1.0": "patchs/@protobufjs%2Finquire@1.1.0.patch"
   }
 }
