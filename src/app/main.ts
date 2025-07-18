@@ -5,11 +5,15 @@ import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { resolve } from 'path';
+import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const port = import.meta.env.PORT ?? 3000;
 
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  // Configure cookie parser
+  app.use(cookieParser(process.env.COOKIE_SECRET || 'default-cookie-secret'));
 
   app.useGlobalPipes(new FormattedValidationPipe());
 
