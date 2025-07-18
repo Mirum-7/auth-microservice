@@ -34,7 +34,8 @@ export class ExampleController {
   getUserProfile(@Req() request: Request) {
     return {
       userId: request.user?.userId,
-      role: request.user?.role,
+      username: request.user?.username,
+      email: request.user?.email,
       message: 'User profile data',
     };
   }

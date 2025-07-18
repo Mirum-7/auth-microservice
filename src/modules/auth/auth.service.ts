@@ -1,7 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import type { Response } from 'express';
 import { CreateUserDto, UsersService } from '../users';
-import { JwtTokenService, JwtTokens } from '../jwt';
+import { JwtTokenService } from '../jwt';
 
 @Injectable()
 export class AuthService {
@@ -10,21 +9,18 @@ export class AuthService {
     private readonly jwtTokenService: JwtTokenService,
   ) {}
 
-  async register(createUserDto: CreateUserDto, response: Response) {
+  async register(createUserDto: CreateUserDto) {
     const user = await this.usersService.createOne(createUserDto);
 
-    // Generate JWT tokens
-    const tokens = await this.jwtTokenService.generateTokens(user.id);
-    
-    // Set cookies
-    this.jwtTokenService.setTokenCookies(response, tokens);
+    // Создание JWT токена
+    const token = this.jwtTokenService.createToken(user.id, user.username, user.email);
 
-    // Return user without password
+    // Возврат пользователя без пароля и токена
     const { password, ...userWithoutPassword } = user;
-    return userWithoutPassword;
+    return { user: userWithoutPassword, token };
   }
 
-  async login(username: string, password: string, response: Response) {
+  async login(username: string, password: string) {
     const user = await this.usersService.findOne({ username });
 
     if (!user) {
@@ -37,41 +33,18 @@ export class AuthService {
       throw new UnauthorizedException('Invalid password or username');
     }
 
-    // Generate JWT tokens
-    const tokens = await this.jwtTokenService.generateTokens(user.id);
-    
-    // Set cookies
-    this.jwtTokenService.setTokenCookies(response, tokens);
+    // Создание JWT токена
+    const token = this.jwtTokenService.createToken(user.id, user.username, user.email);
 
-    // Return user without password
+    // Возврат пользователя без пароля и токена
     const { password: _, ...userWithoutPassword } = user;
-    return userWithoutPassword;
+    return { user: userWithoutPassword, token };
   }
 
   /**
-   * Refresh access token using refresh token from cookies
+   * Выход пользователя
    */
-  async refreshTokens(refreshToken: string, response: Response): Promise<{ message: string }> {
-    const payload = await this.jwtTokenService.verifyToken(refreshToken);
-    
-    if (payload.type !== 'refresh') {
-      throw new UnauthorizedException('Invalid refresh token type');
-    }
-
-    // Generate new tokens
-    const tokens = await this.jwtTokenService.generateTokens(payload.userId);
-    
-    // Set new cookies
-    this.jwtTokenService.setTokenCookies(response, tokens);
-
-    return { message: 'Tokens refreshed successfully' };
-  }
-
-  /**
-   * Logout user by clearing JWT cookies
-   */
-  async logout(response: Response): Promise<{ message: string }> {
-    this.jwtTokenService.clearTokenCookies(response);
+  async logout(): Promise<{ message: string }> {
     return { message: 'Logged out successfully' };
   }
 }

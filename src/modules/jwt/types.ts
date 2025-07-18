@@ -4,8 +4,10 @@
 export interface JwtPayload {
   /** User ID */
   userId: string;
-  /** User role (primary role for simplicity) */
-  role?: string;
+  /** Username */
+  username: string;
+  /** Email */
+  email: string;
   /** Token type */
   type: 'access' | 'refresh';
 }

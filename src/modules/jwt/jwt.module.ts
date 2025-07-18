@@ -6,7 +6,7 @@ import { JwtAuthGuard } from './jwt-auth.guard';
 @Module({
   imports: [
     JwtModule.register({
-      secret: process.env.JWT_SECRET || 'default-secret-for-development',
+      secret: import.meta.env.JWT_SECRET || 'default-secret-for-development',
       signOptions: {
         issuer: 'auth-microservice',
         audience: 'mirum7-app',

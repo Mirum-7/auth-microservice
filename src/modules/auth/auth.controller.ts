@@ -1,64 +1,64 @@
-import { Body, Controller, Post, Req, Res, UnauthorizedException } from '@nestjs/common';
-import type { Request, Response } from 'express';
+import { Body, Controller, Post, Res } from '@nestjs/common';
+import type { Response } from 'express';
 import { CreateUserDto } from '../users';
 import { AuthService } from './auth.service';
-import { JwtTokenService } from '../jwt';
 import { LoginDto } from './dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-    private readonly jwtTokenService: JwtTokenService,
   ) {}
 
   /**
-   * Register a new user
+   * Регистрация нового пользователя
    */
   @Post('register')
   async register(
     @Body() createUserDto: CreateUserDto,
     @Res({ passthrough: true }) response: Response,
   ) {
-    return this.authService.register(createUserDto, response);
+    const result = await this.authService.register(createUserDto);
+    
+    // Установка токена в httpOnly cookie
+    response.cookie('jwt', result.token, {
+      httpOnly: true,
+      domain: import.meta.env.DOMAIN,
+    });
+
+    return result.user;
   }
 
   /**
-   * Login user
+   * Авторизация пользователя
    */
   @Post('login')
   async login(
     @Body() loginDto: LoginDto,
     @Res({ passthrough: true }) response: Response,
   ) {
-    return this.authService.login(loginDto.username, loginDto.password, response);
+    const result = await this.authService.login(loginDto.username, loginDto.password);
+    
+    // Установка токена в httpOnly cookie
+    response.cookie('jwt', result.token, {
+      httpOnly: true,
+      domain: import.meta.env.DOMAIN,
+    });
+
+    return result.user;
   }
 
   /**
-   * Refresh access token using refresh token
-   */
-  @Post('refresh')
-  async refresh(
-    @Req() request: Request,
-    @Res({ passthrough: true }) response: Response,
-  ) {
-    const refreshToken = this.jwtTokenService.extractTokenFromCookies(
-      request.cookies,
-      'refreshToken',
-    );
-
-    if (!refreshToken) {
-      throw new UnauthorizedException('No refresh token found');
-    }
-
-    return this.authService.refreshTokens(refreshToken, response);
-  }
-
-  /**
-   * Logout user
+   * Выход пользователя
    */
   @Post('logout')
   async logout(@Res({ passthrough: true }) response: Response) {
-    return this.authService.logout(response);
+    // Очистка cookie
+    response.clearCookie('jwt', {
+      httpOnly: true,
+      domain: import.meta.env.DOMAIN,
+    });
+
+    return this.authService.logout();
   }
 }
