@@ -5,12 +5,18 @@ import { CreateUserDto, UsersService } from '../users';
 export class AuthService {
   constructor(private readonly usersService: UsersService) {}
 
+  /**
+   * Регистрация нового пользователя.
+   */
   async register(createUserDto: CreateUserDto) {
     const user = await this.usersService.createOne(createUserDto);
 
     return user;
   }
 
+  /**
+   * Аутентификация пользователя.
+   */
   async login(username: string, password: string) {
     const user = await this.usersService.findOne({ username });
 
