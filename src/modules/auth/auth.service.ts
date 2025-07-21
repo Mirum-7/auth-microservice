@@ -1,25 +1,32 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { User } from '@prisma/client';
 import { CreateUserDto, UsersService } from '../users';
-import { JwtTokenService } from '../jwt';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly usersService: UsersService,
-    private readonly jwtTokenService: JwtTokenService,
+    private readonly jwtService: JwtService,
   ) {}
 
+  /**
+   * Регистрация нового пользователя
+   */
   async register(createUserDto: CreateUserDto) {
     const user = await this.usersService.createOne(createUserDto);
 
     // Создание JWT токена
-    const token = this.jwtTokenService.createToken(user.id, user.username, user.email);
+    const token = this.createUserToken(user);
 
     // Возврат пользователя без пароля и токена
     const { password, ...userWithoutPassword } = user;
     return { user: userWithoutPassword, token };
   }
 
+  /**
+   * Авторизация пользователя
+   */
   async login(username: string, password: string) {
     const user = await this.usersService.findOne({ username });
 
@@ -34,7 +41,7 @@ export class AuthService {
     }
 
     // Создание JWT токена
-    const token = this.jwtTokenService.createToken(user.id, user.username, user.email);
+    const token = this.createUserToken(user);
 
     // Возврат пользователя без пароля и токена
     const { password: _, ...userWithoutPassword } = user;
@@ -42,9 +49,13 @@ export class AuthService {
   }
 
   /**
-   * Выход пользователя
+   * Создание JWT токена для пользователя
    */
-  async logout(): Promise<{ message: string }> {
-    return { message: 'Logged out successfully' };
+  private createUserToken(user: User) {
+    return this.jwtService.sign({
+      id: user.id,
+      username: user.username,
+      email: user.email,
+    });
   }
 }

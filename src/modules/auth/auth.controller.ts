@@ -6,9 +6,7 @@ import { LoginDto } from './dto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
   /**
    * Регистрация нового пользователя
@@ -18,34 +16,29 @@ export class AuthController {
     @Body() createUserDto: CreateUserDto,
     @Res({ passthrough: true }) response: Response,
   ) {
-    const result = await this.authService.register(createUserDto);
-    
-    // Установка токена в httpOnly cookie
-    response.cookie('jwt', result.token, {
+    const { user, token } = await this.authService.register(createUserDto);
+
+    response.cookie('jwt', token, {
       httpOnly: true,
       domain: import.meta.env.DOMAIN,
     });
 
-    return result.user;
+    return user;
   }
 
   /**
    * Авторизация пользователя
    */
   @Post('login')
-  async login(
-    @Body() loginDto: LoginDto,
-    @Res({ passthrough: true }) response: Response,
-  ) {
-    const result = await this.authService.login(loginDto.username, loginDto.password);
-    
-    // Установка токена в httpOnly cookie
-    response.cookie('jwt', result.token, {
+  async login(@Body() loginDto: LoginDto, @Res({ passthrough: true }) response: Response) {
+    const { user, token } = await this.authService.login(loginDto.username, loginDto.password);
+
+    response.cookie('jwt', token, {
       httpOnly: true,
       domain: import.meta.env.DOMAIN,
     });
 
-    return result.user;
+    return user;
   }
 
   /**
@@ -53,12 +46,9 @@ export class AuthController {
    */
   @Post('logout')
   async logout(@Res({ passthrough: true }) response: Response) {
-    // Очистка cookie
     response.clearCookie('jwt', {
       httpOnly: true,
       domain: import.meta.env.DOMAIN,
     });
-
-    return this.authService.logout();
   }
 }
