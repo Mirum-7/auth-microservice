@@ -1,6 +1,5 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { User } from '@prisma/client';
 import { CreateUserDto, UsersService } from '../users';
 
 @Injectable()
@@ -51,7 +50,7 @@ export class AuthService {
   /**
    * Создание JWT токена для пользователя
    */
-  private createUserToken(user: User) {
+  private createUserToken(user: any) {
     return this.jwtService.sign({
       id: user.id,
       username: user.username,

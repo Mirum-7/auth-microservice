@@ -1,12 +1,16 @@
 import { Body, Controller, Post, Res } from '@nestjs/common';
 import type { Response } from 'express';
 import { CreateUserDto } from '../users';
+import { AppConfigService } from '../../shared/config';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly configService: AppConfigService,
+  ) {}
 
   /**
    * Регистрация нового пользователя
@@ -20,7 +24,7 @@ export class AuthController {
 
     response.cookie('jwt', token, {
       httpOnly: true,
-      domain: import.meta.env.DOMAIN,
+      domain: this.configService.domain,
     });
 
     return user;
@@ -35,7 +39,7 @@ export class AuthController {
 
     response.cookie('jwt', token, {
       httpOnly: true,
-      domain: import.meta.env.DOMAIN,
+      domain: this.configService.domain,
     });
 
     return user;
@@ -48,7 +52,7 @@ export class AuthController {
   async logout(@Res({ passthrough: true }) response: Response) {
     response.clearCookie('jwt', {
       httpOnly: true,
-      domain: import.meta.env.DOMAIN,
+      domain: this.configService.domain,
     });
   }
 }
